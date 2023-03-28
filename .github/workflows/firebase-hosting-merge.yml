@@ -11,6 +11,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'yarn'
+      - name: cache node_modules
+        id: node_modules_cache_id
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ubuntu-latest-node-v18-deps-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+      - if: ${{ steps.node_modules_cache_id.outputs.cache-hit != 'true' }}
+        run: yarn --frozen-lockfile
+      - run: yarn build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'

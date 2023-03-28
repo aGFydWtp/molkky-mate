@@ -1,8 +1,8 @@
 {
-  "projects": {
-    "default": "molkky-mate-8cd2d",
-    "production": "molkky-mate-8cd2d"
-  },
-  "targets": {},
-  "etags": {}
+	"projects": {
+		"default": "molkky-mate-8cd2d",
+		"production": "molkky-mate-8cd2d"
+	},
+	"targets": {},
+	"etags": {}
 }
