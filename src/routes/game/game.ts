@@ -44,6 +44,10 @@ export class Game {
 		this._rotationRule = rotationRule;
 	}
 
+	get teams(): Array<Team> {
+		return this._teams;
+	}
+
 	get gameCount(): number {
 		return this._gameCount;
 	}
