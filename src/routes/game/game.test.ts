@@ -117,4 +117,70 @@ describe('team test', () => {
 		expect(game.teamOfCurrentTurn().name).toBe('teamA');
 		expect(game.finished()).toBeFalsy();
 	});
+
+	// when teamA is winner, teamB is next turn
+	it('rotation team slide', () => {
+		const playersA: Player[] = [
+			{ id: '1', displayName: 'jon' },
+			{ id: '2', displayName: 'mike' }
+		];
+		const playersB: Player[] = [
+			{ id: '1', displayName: 'jon' },
+			{ id: '2', displayName: 'mike' }
+		];
+		const teamA = new Team('teamA', playersA, 50, 0, 0);
+		const teamB = new Team('teamB', playersB, 34, 0, 0);
+		const game = new Game([teamA, teamB], 2, 'slide');
+
+		expect(game.finished()).toBeTruthy();
+
+		expect(game.nextGame()).toBeTruthy();
+
+		expect(game.teamOfCurrentTurn().name).toBe('teamB');
+		expect(game.finished()).toBeFalsy();
+	});
+
+	// write teamOfCurrentTurn test
+	it('teamOfCurrentTurn', () => {
+		const playersA: Player[] = [
+			{ id: '1', displayName: 'jon' },
+			{ id: '2', displayName: 'mike' }
+		];
+		const playersB: Player[] = [
+			{ id: '1', displayName: 'jon' },
+			{ id: '2', displayName: 'mike' }
+		];
+		const teamA = new Team('teamA', playersA, 0, 0, 0);
+		const teamB = new Team('teamB', playersB, 0, 0, 0);
+		const game = new Game([teamA, teamB], 1);
+
+		expect(game.teamOfCurrentTurn().name).toBe('teamA');
+	});
+
+	// write team.nextGame test
+	it('team.nextGame', () => {
+		const playersA: Player[] = [
+			{ id: '1', displayName: 'jon' },
+			{ id: '2', displayName: 'mike' }
+		];
+		const playersB: Player[] = [
+			{ id: '1', displayName: 'jon' },
+			{ id: '2', displayName: 'mike' }
+		];
+		const teamA = new Team('teamA', playersA, 0, 0, 0);
+		const teamB = new Team('teamB', playersB, 0, 0, 0);
+		const game = new Game([teamA, teamB], 3);
+
+		expect(game.teamOfCurrentTurn().name).toBe('teamA');
+
+		expect(game.nextGame()).toBeTruthy();
+		expect(game.gameCount).toBe(1);
+		expect(game.teamOfCurrentTurn().name).toBe('teamB');
+
+		expect(game.nextGame()).toBeTruthy();
+		expect(game.gameCount).toBe(0);
+		expect(game.teamOfCurrentTurn().name).toBe('teamA');
+
+		expect(game.nextGame()).toBeFalsy();
+	});
 });

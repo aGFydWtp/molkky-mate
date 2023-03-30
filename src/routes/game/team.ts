@@ -1,4 +1,4 @@
-import { MAX_SCORE, type HitCount } from './game';
+import type { HitCount } from './game';
 
 export interface Player {
 	id: string;
@@ -9,8 +9,29 @@ export class Team {
 	private _name: string;
 	private _players: Array<Player>;
 	private _score: number;
+	/**
+	 * 現在のターンのプレイヤーのインデックス
+	 *
+	 * @private
+	 * @type {number}
+	 * @memberof Team
+	 */
 	private _playerIndex: number;
+	/**
+	 * フォルトの回数
+	 *
+	 * @private
+	 * @type {number}
+	 * @memberof Team
+	 */
 	private _faultCount: number;
+	/**
+	 * プレイヤーの順番を変えるルール
+	 *
+	 * @private
+	 * @type {('slide' | 'none')}
+	 * @memberof Team
+	 */
 	private _rotationRule: 'slide' | 'none';
 
 	constructor(
@@ -41,6 +62,10 @@ export class Team {
 		return this._score;
 	}
 
+	set score(score: number) {
+		this._score = score;
+	}
+
 	get faultCount(): number {
 		return this._faultCount;
 	}
@@ -50,19 +75,10 @@ export class Team {
 	}
 
 	public threw(hitCount: HitCount) {
-		const score = this._score + hitCount;
-
-		if (this._score >= MAX_SCORE || this._faultCount >= 3) {
-			throw new Error('ゲームは終了済みです。 reset() で新しいゲームを再開して下さい。');
-		}
-
 		if (hitCount === 0) {
 			this._faultCount++;
-		} else if (score <= MAX_SCORE) {
-			this._score = this._score + hitCount;
-			this._faultCount = 0;
 		} else {
-			this._score = 25;
+			this._score = this._score + hitCount;
 			this._faultCount = 0;
 		}
 		this._playerIndex = (this._playerIndex + 1) % this._players.length;

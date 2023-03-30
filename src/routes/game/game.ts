@@ -4,11 +4,32 @@ export const MAX_SCORE = 50;
 export type HitCount = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 
 export class Game {
-	private id: string;
-	private teams: Array<Team>;
-	private gameCount: number;
-	private rotationRule: 'slide' | 'none';
-	private teamIndex: number;
+	private _id: string;
+	private _teams: Array<Team>;
+	/**
+	 * ゲームの残り回数
+	 *
+	 * @private
+	 * @type {number}
+	 * @memberof Game
+	 */
+	private _gameCount: number;
+	/**
+	 * チームの順番を変えるルール
+	 *
+	 * @private
+	 * @type {('slide' | 'none')}
+	 * @memberof Game
+	 */
+	private _rotationRule: 'slide' | 'none';
+	/**
+	 * 現在のターンのチームのインデックス
+	 *
+	 * @private
+	 * @type {number}
+	 * @memberof Game
+	 */
+	private _teamIndex: number;
 
 	constructor(teams: Array<Team>, gameCount: number, rotationRule: 'slide' | 'none' = 'slide') {
 		if (gameCount <= 0) {
@@ -16,11 +37,15 @@ export class Game {
 		} else if (teams.length < 1) {
 			throw new Error('1チーム以上いる必要があります。');
 		}
-		this.id = '';
-		this.teams = teams;
-		this.gameCount = gameCount;
-		this.teamIndex = 0;
-		this.rotationRule = rotationRule;
+		this._id = '';
+		this._teams = teams;
+		this._gameCount = gameCount - 1;
+		this._teamIndex = 0;
+		this._rotationRule = rotationRule;
+	}
+
+	get gameCount(): number {
+		return this._gameCount;
 	}
 
 	/**
@@ -30,7 +55,7 @@ export class Game {
 	 * @memberof Game
 	 */
 	public teamOfCurrentTurn(): Team {
-		return this.teams[this.teamIndex];
+		return this._teams[this._teamIndex];
 	}
 
 	/**
@@ -43,37 +68,43 @@ export class Game {
 	public threw(hitCount: HitCount): boolean {
 		if (this.finished()) return false;
 
-		const targetTeam = this.teams[this.teamIndex];
+		const targetTeam = this.teamOfCurrentTurn();
 		targetTeam.threw(hitCount);
+
+		// 50点を超えてしまった場合は25点にもどす
+		if (targetTeam.score > MAX_SCORE) {
+			targetTeam.score = 25;
+		}
+
 		if (targetTeam.score <= MAX_SCORE) {
-			this.teamIndex = (this.teamIndex + 1) % this.teams.length;
+			this._teamIndex = (this._teamIndex + 1) % this._teams.length;
 			return true;
 		}
 		return false;
 	}
 
 	/**
-	 * gameCount をインクリメントして次のゲームを開始する。
+	 * gameCount をデクリメントして次のゲームを開始する
 	 * 全てのゲームが終了している場合は false を返却する
 	 *
 	 * @memberof Game
 	 */
 	public nextGame(): boolean {
-		if (this.gameCount <= 0) return false;
+		if (this._gameCount <= 0) return false;
 
-		this.gameCount--;
-		this.teamIndex = 0;
-		this.teams.forEach((_, index) => this.teams[index].reset());
-		if (this.rotationRule === 'slide' && this.teams.length > 1) {
-			this.teams = [...this.teams.slice(-1), ...this.teams.slice(0, -1)];
+		this._gameCount--;
+		this._teamIndex = 0;
+		this._teams.forEach((_, index) => this._teams[index].reset());
+		if (this._rotationRule === 'slide' && this._teams.length > 1) {
+			this._teams = [...this._teams.slice(-1), ...this._teams.slice(0, -1)];
 		}
 		return true;
 	}
 
 	public finished() {
 		return (
-			this.teams.some((team) => team.score >= MAX_SCORE) ||
-			this.teams.some((team) => team.faultCount >= 3)
+			this._teams.some((team) => team.score >= MAX_SCORE) ||
+			this._teams.some((team) => team.faultCount >= 3)
 		);
 	}
 }
