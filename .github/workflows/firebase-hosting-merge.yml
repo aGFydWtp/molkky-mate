@@ -23,6 +23,7 @@ jobs:
           key: ubuntu-latest-node-v18-deps-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
       - if: ${{ steps.node_modules_cache_id.outputs.cache-hit != 'true' }}
         run: yarn --frozen-lockfile
+      - run: yarn check
       - run: yarn build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
