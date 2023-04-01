@@ -1,12 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import type { Player } from './team';
+
 import { Team } from './team';
+
+import type { Player } from './team';
 
 describe('team test', () => {
 	it('init', () => {
 		const players: Player[] = [
-			{ id: '1', displayName: 'jon' },
-			{ id: '2', displayName: 'mike' }
+			{ id: '1', displayName: 'jon', teamId: '1', roomId: '1' },
+			{ id: '2', displayName: 'mike', teamId: '1', roomId: '1' }
 		];
 		const team = new Team('1', 'teamA', players, 0, 0, 0);
 
@@ -16,8 +18,8 @@ describe('team test', () => {
 
 	it('threw', () => {
 		const players: Player[] = [
-			{ id: '1', displayName: 'jon' },
-			{ id: '2', displayName: 'mike' }
+			{ id: '1', displayName: 'jon', teamId: '1', roomId: '1' },
+			{ id: '2', displayName: 'mike', teamId: '1', roomId: '1' }
 		];
 		const team = new Team('1', 'teamA', players, 46, 0, 0, 'slide');
 
@@ -34,8 +36,8 @@ describe('team test', () => {
 
 	it('over 50', () => {
 		const players: Player[] = [
-			{ id: '1', displayName: 'jon' },
-			{ id: '2', displayName: 'mike' }
+			{ id: '1', displayName: 'jon', teamId: '1', roomId: '1' },
+			{ id: '2', displayName: 'mike', teamId: '1', roomId: '1' }
 		];
 		const team = new Team('1', 'teamA', players, 45, 0, 0);
 
@@ -45,8 +47,8 @@ describe('team test', () => {
 
 	it('over 3 faultes', () => {
 		const players: Player[] = [
-			{ id: '1', displayName: 'jon' },
-			{ id: '2', displayName: 'mike' }
+			{ id: '1', displayName: 'jon', teamId: '1', roomId: '1' },
+			{ id: '2', displayName: 'mike', teamId: '1', roomId: '1' }
 		];
 		const team = new Team('1', 'teamA', players, 0, 0, 0);
 
@@ -60,8 +62,8 @@ describe('team test', () => {
 
 	it('rotation none', () => {
 		const players: Player[] = [
-			{ id: '1', displayName: 'jon' },
-			{ id: '2', displayName: 'mike' }
+			{ id: '1', displayName: 'jon', teamId: '1', roomId: '1' },
+			{ id: '2', displayName: 'mike', teamId: '1', roomId: '1' }
 		];
 		const team = new Team('1', 'teamA', players, 0, 0, 0, 'none');
 
@@ -74,8 +76,8 @@ describe('team test', () => {
 
 	it('currentPlayer', () => {
 		const players: Player[] = [
-			{ id: '1', displayName: 'jon' },
-			{ id: '2', displayName: 'mike' }
+			{ id: '1', displayName: 'jon', teamId: '1', roomId: '1' },
+			{ id: '2', displayName: 'mike', teamId: '1', roomId: '1' }
 		];
 		const team = new Team('1', 'teamA', players, 0, 0, 0, 'none');
 
@@ -84,8 +86,8 @@ describe('team test', () => {
 
 	it('threw', () => {
 		const players: Player[] = [
-			{ id: '1', displayName: 'jon' },
-			{ id: '2', displayName: 'mike' }
+			{ id: '1', displayName: 'jon', teamId: '1', roomId: '1' },
+			{ id: '2', displayName: 'mike', teamId: '1', roomId: '1' }
 		];
 		const team = new Team('1', 'teamA', players, 0, 0, 0, 'none');
 
@@ -96,8 +98,8 @@ describe('team test', () => {
 
 	it('reset', () => {
 		const players: Player[] = [
-			{ id: '1', displayName: 'jon' },
-			{ id: '2', displayName: 'mike' }
+			{ id: '1', displayName: 'jon', teamId: '1', roomId: '1' },
+			{ id: '2', displayName: 'mike', teamId: '1', roomId: '1' }
 		];
 		const team = new Team('1', 'teamA', players, 0, 0, 0, 'none');
 

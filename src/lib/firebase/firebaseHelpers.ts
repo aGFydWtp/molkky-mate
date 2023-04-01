@@ -1,4 +1,3 @@
-import { db } from '.';
 import {
 	addDoc,
 	collection,
@@ -9,7 +8,10 @@ import {
 	where,
 	writeBatch
 } from 'firebase/firestore';
-import type { Room, Turn, Player } from './types';
+
+import type { Room, Turn, Player } from '$lib/firebase/types';
+
+import { db } from '$lib/firebase';
 
 export async function createRoom(
 	room: Pick<Room, 'gameCount' | 'rotationRule' | 'teams'>

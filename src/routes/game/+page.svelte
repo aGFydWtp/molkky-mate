@@ -1,11 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { writable } from 'svelte/store';
+  
+	import { goto } from '$app/navigation';
+	import ButtonGrid from '$lib/components/ButtonGrid.svelte';
+	import { getGameInfo, getPlayersByTeamId } from '$lib/firebase/firebaseHelpers';
+
   import { Game, type HitCount } from './game';
   import { Team } from './team';
-  import { writable } from 'svelte/store';
-	import ButtonGrid from '$lib/compoments/ButtonGrid.svelte';
-	import { goto } from '$app/navigation';
-	import { getGameInfo, getPlayersByTeamId } from '$lib/firebase/firebaseHelpers';
 
   let hitCount: HitCount | null = null;
   let game: Game;
@@ -56,7 +58,6 @@
 </script>
 
 <style>
-  /* ここにスタイルを追加 */
   .active {
     background-color: #f00;
   }
