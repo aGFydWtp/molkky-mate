@@ -12,8 +12,8 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon' },
 			{ id: '2', displayName: 'mike' }
 		];
-		const teamA = new Team('teamA', playersA, 0, 0, 0);
-		const teamB = new Team('teamB', playersB, 0, 0, 0);
+		const teamA = new Team('1', 'teamA', playersA, 0, 0, 0);
+		const teamB = new Team('2', 'teamB', playersB, 0, 0, 0);
 		const game = new Game([teamA, teamB], 1);
 
 		expect(game.teamOfCurrentTurn().name).toBe('teamA');
@@ -29,8 +29,8 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon' },
 			{ id: '2', displayName: 'mike' }
 		];
-		const teamA = new Team('teamA', playersA, 0, 0, 0);
-		const teamB = new Team('teamB', playersB, 0, 0, 0);
+		const teamA = new Team('1', 'teamA', playersA, 0, 0, 0);
+		const teamB = new Team('2', 'teamB', playersB, 0, 0, 0);
 		const game = new Game([teamA, teamB], 1);
 
 		expect(game.threw(10)).toBeTruthy();
@@ -46,8 +46,8 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon' },
 			{ id: '2', displayName: 'mike' }
 		];
-		const teamA = new Team('teamA', playersA, 40, 0, 0);
-		const teamB = new Team('teamB', playersB, 34, 0, 0);
+		const teamA = new Team('1', 'teamA', playersA, 40, 0, 0);
+		const teamB = new Team('2', 'teamB', playersB, 34, 0, 0);
 		const game = new Game([teamA, teamB], 1);
 
 		expect(game.threw(10)).toBeTruthy();
@@ -67,8 +67,8 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon' },
 			{ id: '2', displayName: 'mike' }
 		];
-		const teamA = new Team('teamA', playersA, 40, 2, 0);
-		const teamB = new Team('teamB', playersB, 34, 0, 0);
+		const teamA = new Team('1', 'teamA', playersA, 40, 2, 0);
+		const teamB = new Team('2', 'teamB', playersB, 34, 0, 0);
 		const game = new Game([teamA, teamB], 1, 'none');
 
 		expect(game.threw(0)).toBeTruthy();
@@ -85,8 +85,8 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon' },
 			{ id: '2', displayName: 'mike' }
 		];
-		const teamA = new Team('teamA', playersA, 50, 0, 0);
-		const teamB = new Team('teamB', playersB, 34, 0, 0);
+		const teamA = new Team('1', 'teamA', playersA, 50, 0, 0);
+		const teamB = new Team('2', 'teamB', playersB, 34, 0, 0);
 		const game = new Game([teamA, teamB], 2, 'slide');
 
 		expect(game.finished()).toBeTruthy();
@@ -106,8 +106,8 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon' },
 			{ id: '2', displayName: 'mike' }
 		];
-		const teamA = new Team('teamA', playersA, 50, 0, 0);
-		const teamB = new Team('teamB', playersB, 34, 0, 0);
+		const teamA = new Team('1', 'teamA', playersA, 50, 0, 0);
+		const teamB = new Team('2', 'teamB', playersB, 34, 0, 0);
 		const game = new Game([teamA, teamB], 2, 'none');
 
 		expect(game.finished()).toBeTruthy();
@@ -128,8 +128,8 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon' },
 			{ id: '2', displayName: 'mike' }
 		];
-		const teamA = new Team('teamA', playersA, 50, 0, 0);
-		const teamB = new Team('teamB', playersB, 34, 0, 0);
+		const teamA = new Team('1', 'teamA', playersA, 50, 0, 0);
+		const teamB = new Team('2', 'teamB', playersB, 34, 0, 0);
 		const game = new Game([teamA, teamB], 2, 'slide');
 
 		expect(game.finished()).toBeTruthy();
@@ -150,8 +150,8 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon' },
 			{ id: '2', displayName: 'mike' }
 		];
-		const teamA = new Team('teamA', playersA, 0, 0, 0);
-		const teamB = new Team('teamB', playersB, 0, 0, 0);
+		const teamA = new Team('1', 'teamA', playersA, 0, 0, 0);
+		const teamB = new Team('2', 'teamB', playersB, 0, 0, 0);
 		const game = new Game([teamA, teamB], 1);
 
 		expect(game.teamOfCurrentTurn().name).toBe('teamA');
@@ -167,8 +167,8 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon' },
 			{ id: '2', displayName: 'mike' }
 		];
-		const teamA = new Team('teamA', playersA, 0, 0, 0);
-		const teamB = new Team('teamB', playersB, 0, 0, 0);
+		const teamA = new Team('1', 'teamA', playersA, 0, 0, 0);
+		const teamB = new Team('2', 'teamB', playersB, 0, 0, 0);
 		const game = new Game([teamA, teamB], 3);
 
 		expect(game.teamOfCurrentTurn().name).toBe('teamA');

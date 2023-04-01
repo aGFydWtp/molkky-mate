@@ -3,23 +3,49 @@
   import { Game, type HitCount } from './game';
   import { Team } from './team';
   import { writable } from 'svelte/store';
+	import ButtonGrid from '$lib/compoments/ButtonGrid.svelte';
+	import { goto } from '$app/navigation';
+	import { getGameInfo, getPlayersByTeamId } from '$lib/firebase/firebaseHelpers';
 
-  let hitCount: HitCount = 0;
+  let hitCount: HitCount | null = null;
   let game: Game;
   const gameStore = writable<Game | null>(null);
 
-  onMount(() => {
-    // ここでチームとプレイヤーを設定する
-    const team1 = new Team('Team 1', [{ id: '1', displayName: 'Player 1-1' }, { id: '2', displayName: 'Player 1-2' }], 0, 0, 0);
-    const team2 = new Team('Team 2', [{ id: '3', displayName: 'Player 2-1' }, { id: '4', displayName: 'Player 2-2' }], 0, 0, 0);
+  onMount(async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const gameId = urlParams.get('gameId');
 
-    game = new Game([team1, team2], 3);
-    gameStore.set(game);
+    if (typeof gameId  === 'string') {
+      const gameInfo = await getGameInfo(gameId);
+      const teams = [];
+
+      for (const teamInfo of gameInfo.teams) {
+        const players = await getPlayersByTeamId(teamInfo.id);
+        console.log({players});
+        
+        const team = new Team(teamInfo.id, teamInfo.name, players, teamInfo.score, 0, 0);
+        teams.push(team);
+      }
+
+      game = new Game(teams, gameInfo.gameCount);
+      gameStore.set(game);
+    } else {
+    	goto('/new-game');
+      return;
+    }
   });
 
-  function handleHit(hitCount: HitCount) {
+  function handleHit(_hitCount: HitCount) {
+    hitCount = _hitCount;
+  }
+
+  function handleSubmit() {
+    if (hitCount === null) {
+      return;
+    }
     game.threw(hitCount);
     gameStore.set(game);
+    hitCount = null;
   }
 
   function handleNextGame() {
@@ -31,30 +57,28 @@
 
 <style>
   /* ここにスタイルを追加 */
+  .active {
+    background-color: #f00;
+  }
+
+  .pad {
+    width: 50%;
+  }
 </style>
 
 <main>
   <h1>MolkkyMate - ゲーム画面</h1>
   <div>
     <label for="hitCount">倒した本数: </label>
-    <div class="buttons">
-      <button on:click={() => handleHit(0)}>{0}</button>
-      <button on:click={() => handleHit(1)}>{1}</button>
-      <button on:click={() => handleHit(2)}>{2}</button>
-      <button on:click={() => handleHit(3)}>{3}</button>
-      <button on:click={() => handleHit(4)}>{4}</button>
-      <button on:click={() => handleHit(5)}>{5}</button>
-      <button on:click={() => handleHit(6)}>{6}</button>
-      <button on:click={() => handleHit(7)}>{7}</button>
-      <button on:click={() => handleHit(8)}>{8}</button>
-      <button on:click={() => handleHit(9)}>{9}</button>
-      <button on:click={() => handleHit(10)}>{10}</button>
-      <button on:click={() => handleHit(11)}>{11}</button>
-      <button on:click={() => handleHit(12)}>{12}</button>
+
+    <div class="pad">
+      <ButtonGrid activeNumber={hitCount} on:hit={(e) => handleHit(e.detail)} />
     </div>
 
     <button on:click={handleNextGame} disabled={$gameStore ? $gameStore.gameCount <= 0 || !$gameStore.finished() : false}>次のゲームへ</button>
   </div>
+  <button on:click={handleSubmit} disabled={$gameStore?.finished() || hitCount === null}>確定</button>
+  <button class:active={hitCount === 0} on:click={() => handleHit(0)}>ミス</button>
   <div>
     {#if $gameStore}
       <p>残りゲーム数: {$gameStore.gameCount}</p>

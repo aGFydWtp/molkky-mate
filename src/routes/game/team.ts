@@ -3,9 +3,12 @@ import type { HitCount } from './game';
 export interface Player {
 	id: string;
 	displayName: string;
+	teamId: string;
+	roomId: string;
 }
 
 export class Team {
+	private _id: string;
 	private _name: string;
 	private _players: Array<Player>;
 	private _score: number;
@@ -35,6 +38,7 @@ export class Team {
 	private _rotationRule: 'slide' | 'none';
 
 	constructor(
+		id: string,
 		name: string,
 		players: Array<Player>,
 		score: number,
@@ -42,6 +46,7 @@ export class Team {
 		playerIndex: number,
 		rotationRule: 'slide' | 'none' | undefined = 'slide'
 	) {
+		this._id = id;
 		this._name = name;
 		this._players = players;
 		this._score = score;

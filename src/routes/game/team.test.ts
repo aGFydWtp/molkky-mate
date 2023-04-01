@@ -8,7 +8,7 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon' },
 			{ id: '2', displayName: 'mike' }
 		];
-		const team = new Team('teamA', players, 0, 0, 0);
+		const team = new Team('1', 'teamA', players, 0, 0, 0);
 
 		expect(team.score).toBe(0);
 		expect(team.currentPlayer().displayName).toBe('jon');
@@ -19,7 +19,7 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon' },
 			{ id: '2', displayName: 'mike' }
 		];
-		const team = new Team('teamA', players, 46, 0, 0, 'slide');
+		const team = new Team('1', 'teamA', players, 46, 0, 0, 'slide');
 
 		team.threw(4);
 
@@ -37,7 +37,7 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon' },
 			{ id: '2', displayName: 'mike' }
 		];
-		const team = new Team('teamA', players, 45, 0, 0);
+		const team = new Team('1', 'teamA', players, 45, 0, 0);
 
 		team.threw(10);
 		expect(team.score).toBe(55);
@@ -48,7 +48,7 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon' },
 			{ id: '2', displayName: 'mike' }
 		];
-		const team = new Team('teamA', players, 0, 0, 0);
+		const team = new Team('1', 'teamA', players, 0, 0, 0);
 
 		team.threw(0);
 		team.threw(0);
@@ -63,7 +63,7 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon' },
 			{ id: '2', displayName: 'mike' }
 		];
-		const team = new Team('teamA', players, 0, 0, 0, 'none');
+		const team = new Team('1', 'teamA', players, 0, 0, 0, 'none');
 
 		expect(team.currentPlayer().displayName).toBe('jon');
 
@@ -77,7 +77,7 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon' },
 			{ id: '2', displayName: 'mike' }
 		];
-		const team = new Team('teamA', players, 0, 0, 0, 'none');
+		const team = new Team('1', 'teamA', players, 0, 0, 0, 'none');
 
 		expect(team.currentPlayer().displayName).toBe('jon');
 	});
@@ -87,7 +87,7 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon' },
 			{ id: '2', displayName: 'mike' }
 		];
-		const team = new Team('teamA', players, 0, 0, 0, 'none');
+		const team = new Team('1', 'teamA', players, 0, 0, 0, 'none');
 
 		team.threw(10);
 
@@ -99,7 +99,7 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon' },
 			{ id: '2', displayName: 'mike' }
 		];
-		const team = new Team('teamA', players, 0, 0, 0, 'none');
+		const team = new Team('1', 'teamA', players, 0, 0, 0, 'none');
 
 		team.threw(10);
 		team.reset();
