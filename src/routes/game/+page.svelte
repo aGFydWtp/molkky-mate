@@ -1,16 +1,17 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import { writable } from 'svelte/store';
   
 	import { goto } from '$app/navigation';
 	import ButtonGrid from '$lib/components/ButtonGrid.svelte';
-	import { getGameInfo, getPlayersByTeamId } from '$lib/firebase/firebaseHelpers';
+	import { addTurnToDb, getGameInfo, getPlayersByTeamId, subscribeToRoomUpdates, updateRoomInDb } from '$lib/firebase/firebaseHelpers';
 
   import { Game, type HitCount } from './game';
   import { Team } from './team';
 
   let hitCount: HitCount | null = null;
   let game: Game;
+  let unsubscribeFromRoomUpdates: () => void;
   const gameStore = writable<Game | null>(null);
 
   onMount(async () => {
@@ -18,18 +19,35 @@
     const gameId = urlParams.get('gameId');
 
     if (typeof gameId  === 'string') {
+      unsubscribeFromRoomUpdates = subscribeToRoomUpdates(gameId, (updatedRoom) => {
+        const updatedTeams = game.teams.map((team) => {
+          const updatedTeamData = updatedRoom.teams.find((t) => t.id === team.id);
+          if (!updatedTeamData) {
+            return team;
+          }
+          return new Team(team.id, updatedTeamData.name, team.players, updatedTeamData.score, updatedTeamData.faultCount, team.playerIndex);
+        });
+        game.teams = updatedTeams;
+        game.gameCount = updatedRoom.gameCount;
+        game.turn = updatedRoom.turn;
+        gameStore.set(game);
+      });
+
       const gameInfo = await getGameInfo(gameId);
-      const teams = [];
-
-      for (const teamInfo of gameInfo.teams) {
+      
+      const teamsPromises = gameInfo.teams.map(async (teamInfo) => {
         const players = await getPlayersByTeamId(teamInfo.id);
-        console.log({players});
-        
-        const team = new Team(teamInfo.id, teamInfo.name, players, teamInfo.score, 0, 0);
-        teams.push(team);
-      }
+        return new Team(teamInfo.id, teamInfo.name, players, teamInfo.score, 0, 0);
+      });
+      const teams = await Promise.all(teamsPromises);
 
-      game = new Game(teams, gameInfo.gameCount);
+      game = new Game(
+        gameId,
+        teams,
+        gameInfo.gameCount,
+        gameInfo.turn,
+        gameInfo.rotationRule
+      );
       gameStore.set(game);
     } else {
     	goto('/new-game');
@@ -37,24 +55,43 @@
     }
   });
 
+  onDestroy(() => {
+    if (unsubscribeFromRoomUpdates) {
+      unsubscribeFromRoomUpdates();
+    }
+  });
+
   function handleHit(_hitCount: HitCount) {
     hitCount = _hitCount;
   }
 
-  function handleSubmit() {
+  async function handleSubmit () {
     if (hitCount === null) {
       return;
     }
-    game.threw(hitCount);
-    gameStore.set(game);
+    const {finished, snapshot} = game.threw(hitCount);
     hitCount = null;
-  }
 
-  function handleNextGame() {
-    game.nextGame();
+    if (snapshot !== null) {
+      // Turn の追加
+      await addTurnToDb(snapshot);
+
+      console.log({updatedRoom: game.serialize()});
+      await updateRoomInDb(game.serialize());
+    }
     gameStore.set(game);
   }
 
+  async function handleNextGame() {
+    game.nextGame();
+
+    // Room の更新
+    await updateRoomInDb(game.serialize());
+    gameStore.set(game);
+  }
+
+  $: finished = $gameStore?.finished() ?? false;
+  $: finishedAllGame = $gameStore?.finishedAllGame() ?? false;
 </script>
 
 <style>
@@ -75,8 +112,7 @@
     <div class="pad">
       <ButtonGrid activeNumber={hitCount} on:hit={(e) => handleHit(e.detail)} />
     </div>
-
-    <button on:click={handleNextGame} disabled={$gameStore ? $gameStore.gameCount <= 0 || !$gameStore.finished() : false}>次のゲームへ</button>
+    <button on:click={handleNextGame} disabled={finishedAllGame || !finished}>次のゲームへ</button>
   </div>
   <button on:click={handleSubmit} disabled={$gameStore?.finished() || hitCount === null}>確定</button>
   <button class:active={hitCount === 0} on:click={() => handleHit(0)}>ミス</button>

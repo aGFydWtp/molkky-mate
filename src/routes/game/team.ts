@@ -55,6 +55,10 @@ export class Team {
 		this._rotationRule = rotationRule;
 	}
 
+	get id(): string {
+		return this._id;
+	}
+
 	get name(): string {
 		return this._name;
 	}
@@ -73,6 +77,10 @@ export class Team {
 
 	get faultCount(): number {
 		return this._faultCount;
+	}
+
+	get playerIndex(): number {
+		return this._playerIndex;
 	}
 
 	public currentPlayer() {

@@ -1,28 +1,32 @@
-export interface Team {
+export interface FTeam {
 	id: string;
 	name: string;
 	score: number;
 	faultCount: number;
+	playerIndex: number;
+	playerIds: Array<string>;
 }
 
-export interface Room {
+export interface FRoom {
 	id: string;
 	gameCount: number;
+	turn: number;
 	rotationRule: 'slide' | 'none';
-	teams: Array<Team>;
+	teams: Array<FTeam>;
 }
 
-export interface Turn {
+export interface FTurn {
 	id: string;
 	gameCount: number;
 	score: number;
-	playerId: string;
 	faultCount: number;
 	currentTurn: number;
+	playerId: string;
 	roomId: string;
+	teamId: string;
 }
 
-export interface Player {
+export interface FPlayer {
 	id: string;
 	displayName: string;
 	teamId: string;

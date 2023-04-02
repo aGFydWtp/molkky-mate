@@ -1,21 +1,24 @@
 <script lang="ts">
   import { createRoom, createPlayers } from '../../lib/firebase/firebaseHelpers';
-  import type { Room, Team, Player } from '../../lib/firebase/types';
+  import type { FRoom, FTeam, FPlayer } from '../../lib/firebase/types';
   import { nanoid } from 'nanoid';
 
   let gameCount = 1;
+  let turn = 0;
   let rotationRule: 'slide' | 'none' = 'slide';
 
-  let teams: Team[] = [
+  let teams: FTeam[] = [
     {
       id: nanoid(),
       name: '',
       score: 0,
       faultCount: 0,
+      playerIndex: 0,
+      playerIds: [],
     },
   ];
 
-  let players: { [teamId: string]: (Pick<Player, 'displayName' | 'teamId'> & {_id: string})[] } = {
+  let players: { [teamId: string]: (Pick<FPlayer, 'displayName' | 'teamId'> & {_id: string})[] } = {
     [teams[0].id]: [
       {
         _id: nanoid(),
@@ -26,10 +29,11 @@
   };
 
   async function startGame() {
-    const room: Pick<Room, 'gameCount' | 'rotationRule' | 'teams'> = {
+    const room: Pick<FRoom, 'gameCount' | 'rotationRule' | 'teams' | 'turn'> = {
       gameCount,
       rotationRule,
       teams,
+      turn,
     };
 
     const roomId = await createRoom(room);
@@ -38,11 +42,13 @@
   }
 
   function addTeam() {
-    const newTeam: Team = {
+    const newTeam: FTeam = {
       id: nanoid(),
       name: '',
       score: 0,
       faultCount: 0,
+      playerIndex: 0,
+      playerIds: [],
     };
     teams = [...teams, newTeam];
     players[newTeam.id] = [
@@ -55,7 +61,7 @@
   }
 
   function addPlayer(teamId: string) {
-    const newPlayer: Pick<Player, 'displayName' | 'teamId'> & {_id: string} = {
+    const newPlayer: Pick<FPlayer, 'displayName' | 'teamId'> & {_id: string} = {
       _id: nanoid(),
       displayName: '',
       teamId,

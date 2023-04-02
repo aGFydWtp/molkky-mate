@@ -15,7 +15,7 @@ describe('team test', () => {
 		];
 		const teamA = new Team('1', 'teamA', playersA, 0, 0, 0);
 		const teamB = new Team('2', 'teamB', playersB, 0, 0, 0);
-		const game = new Game([teamA, teamB], 1);
+		const game = new Game('1', [teamA, teamB], 1, 0, 'slide');
 
 		expect(game.teamOfCurrentTurn().name).toBe('teamA');
 		expect(game.finished()).toBeFalsy();
@@ -32,9 +32,9 @@ describe('team test', () => {
 		];
 		const teamA = new Team('1', 'teamA', playersA, 0, 0, 0);
 		const teamB = new Team('2', 'teamB', playersB, 0, 0, 0);
-		const game = new Game([teamA, teamB], 1);
+		const game = new Game('1', [teamA, teamB], 1, 0, 'slide');
 
-		expect(game.threw(10)).toBeTruthy();
+		expect(game.threw(10).finished).toBeTruthy();
 		expect(game.teamOfCurrentTurn().name).toBe('teamB');
 	});
 
@@ -49,13 +49,13 @@ describe('team test', () => {
 		];
 		const teamA = new Team('1', 'teamA', playersA, 40, 0, 0);
 		const teamB = new Team('2', 'teamB', playersB, 34, 0, 0);
-		const game = new Game([teamA, teamB], 1);
+		const game = new Game('1', [teamA, teamB], 1, 0, 'slide');
 
-		expect(game.threw(10)).toBeTruthy();
+		expect(game.threw(10).finished).toBeTruthy();
 		expect(game.teamOfCurrentTurn().name).toBe('teamB');
 		expect(game.finished()).toBeTruthy();
 
-		expect(game.threw(10)).toBeFalsy();
+		expect(game.threw(10).finished).toBeTruthy();
 		expect(game.teamOfCurrentTurn().name).toBe('teamB');
 	});
 
@@ -70,9 +70,9 @@ describe('team test', () => {
 		];
 		const teamA = new Team('1', 'teamA', playersA, 40, 2, 0);
 		const teamB = new Team('2', 'teamB', playersB, 34, 0, 0);
-		const game = new Game([teamA, teamB], 1, 'none');
+		const game = new Game('1', [teamA, teamB], 1, 0, 'none');
 
-		expect(game.threw(0)).toBeTruthy();
+		expect(game.threw(0).finished).toBeTruthy();
 		expect(game.teamOfCurrentTurn().name).toBe('teamB');
 		expect(game.finished()).toBeTruthy();
 	});
@@ -88,7 +88,7 @@ describe('team test', () => {
 		];
 		const teamA = new Team('1', 'teamA', playersA, 50, 0, 0);
 		const teamB = new Team('2', 'teamB', playersB, 34, 0, 0);
-		const game = new Game([teamA, teamB], 2, 'slide');
+		const game = new Game('1', [teamA, teamB], 2, 0, 'slide');
 
 		expect(game.finished()).toBeTruthy();
 
@@ -109,7 +109,7 @@ describe('team test', () => {
 		];
 		const teamA = new Team('1', 'teamA', playersA, 50, 0, 0);
 		const teamB = new Team('2', 'teamB', playersB, 34, 0, 0);
-		const game = new Game([teamA, teamB], 2, 'none');
+		const game = new Game('1', [teamA, teamB], 2, 0, 'none');
 
 		expect(game.finished()).toBeTruthy();
 
@@ -131,7 +131,7 @@ describe('team test', () => {
 		];
 		const teamA = new Team('1', 'teamA', playersA, 50, 0, 0);
 		const teamB = new Team('2', 'teamB', playersB, 34, 0, 0);
-		const game = new Game([teamA, teamB], 2, 'slide');
+		const game = new Game('1', [teamA, teamB], 2, 0, 'slide');
 
 		expect(game.finished()).toBeTruthy();
 
@@ -153,7 +153,7 @@ describe('team test', () => {
 		];
 		const teamA = new Team('1', 'teamA', playersA, 0, 0, 0);
 		const teamB = new Team('2', 'teamB', playersB, 0, 0, 0);
-		const game = new Game([teamA, teamB], 1);
+		const game = new Game('1', [teamA, teamB], 1, 0, 'slide');
 
 		expect(game.teamOfCurrentTurn().name).toBe('teamA');
 	});
@@ -170,16 +170,16 @@ describe('team test', () => {
 		];
 		const teamA = new Team('1', 'teamA', playersA, 0, 0, 0);
 		const teamB = new Team('2', 'teamB', playersB, 0, 0, 0);
-		const game = new Game([teamA, teamB], 3);
+		const game = new Game('1', [teamA, teamB], 3, 0, 'slide');
 
 		expect(game.teamOfCurrentTurn().name).toBe('teamA');
 
 		expect(game.nextGame()).toBeTruthy();
-		expect(game.gameCount).toBe(1);
+		expect(game.gameCount).toBe(2);
 		expect(game.teamOfCurrentTurn().name).toBe('teamB');
 
 		expect(game.nextGame()).toBeTruthy();
-		expect(game.gameCount).toBe(0);
+		expect(game.gameCount).toBe(1);
 		expect(game.teamOfCurrentTurn().name).toBe('teamA');
 
 		expect(game.nextGame()).toBeFalsy();
