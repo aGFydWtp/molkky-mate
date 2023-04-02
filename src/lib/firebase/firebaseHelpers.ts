@@ -6,6 +6,7 @@ import {
 	getDocs,
 	onSnapshot,
 	query,
+	setDoc,
 	updateDoc,
 	where,
 	writeBatch
@@ -15,12 +16,9 @@ import type { FRoom, FTurn, FPlayer } from '$lib/firebase/types';
 
 import { db } from '$lib/firebase';
 
-export async function createRoom(
-	room: Pick<FRoom, 'gameCount' | 'rotationRule' | 'teams'>
-): Promise<string> {
-	const roomRef = await collection(db, 'rooms');
-	const doc = await addDoc(roomRef, room);
-	return doc.id;
+export async function createRoom(room: FRoom): Promise<void> {
+	const roomRef = await doc(db, 'rooms', room.id);
+	await setDoc(roomRef, room);
 }
 
 export async function addTurn(turn: FTurn): Promise<void> {
@@ -34,17 +32,11 @@ export async function createPlayer(player: FPlayer): Promise<string> {
 	return doc.id;
 }
 
-export async function createPlayers(
-	players: Array<Pick<FPlayer, 'displayName' | 'teamId'>>,
-	roomId: string
-): Promise<void> {
+export async function createPlayers(players: Array<FPlayer>): Promise<void> {
 	const batch = writeBatch(db);
 	players.forEach((player) => {
-		const playerRef = collection(db, 'players');
-		const playerId = doc(playerRef).id;
-		const playerDoc = doc(db, 'players', playerId);
-		const playerData = { ...player, roomId };
-		batch.set(playerDoc, playerData);
+		const playerDoc = doc(db, 'players', player.id);
+		batch.set(playerDoc, player);
 	});
 
 	await batch.commit();

@@ -103,7 +103,13 @@ export class Game {
 				score: team.score,
 				faultCount: team.faultCount,
 				playerIndex: team.playerIndex,
-				playerIds: team.players.map((player) => player.id)
+				rotationRule: team.rotationRule,
+				players: team.players.map((player) => ({
+					id: player.id,
+					displayName: player.displayName,
+					teamId: player.teamId,
+					roomId: player.roomId
+				}))
 			}))
 		};
 	}

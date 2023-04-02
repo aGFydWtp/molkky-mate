@@ -4,7 +4,8 @@ export interface FTeam {
 	score: number;
 	faultCount: number;
 	playerIndex: number;
-	playerIds: Array<string>;
+	rotationRule: 'slide' | 'none';
+	players: Array<FPlayer>;
 }
 
 export interface FRoom {

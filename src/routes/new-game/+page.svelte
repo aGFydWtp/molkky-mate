@@ -14,14 +14,15 @@
       score: 0,
       faultCount: 0,
       playerIndex: 0,
-      playerIds: [],
+      players: [],
+      rotationRule: 'slide',
     },
   ];
 
-  let players: { [teamId: string]: (Pick<FPlayer, 'displayName' | 'teamId'> & {_id: string})[] } = {
+  let players: { [teamId: string]: Pick<FPlayer, 'id' | 'displayName' | 'teamId'>[] } = {
     [teams[0].id]: [
       {
-        _id: nanoid(),
+        id: nanoid(),
         displayName: '',
         teamId: teams[0].id,
       },
@@ -29,15 +30,20 @@
   };
 
   async function startGame() {
-    const room: Pick<FRoom, 'gameCount' | 'rotationRule' | 'teams' | 'turn'> = {
+    const roomId = nanoid();
+    const room: FRoom = {
+      id: roomId,
       gameCount,
       rotationRule,
-      teams,
+      teams: teams.map((team) =>({
+        ...team,
+        players: players[team.id].map((player) => ({...player, roomId})),
+      })),
       turn,
     };
 
-    const roomId = await createRoom(room);
-    await createPlayers(Object.values(players).flat().map(({displayName, teamId}) => ({displayName, teamId})), roomId);
+    await createRoom(room);
+    await createPlayers(Object.values(players).flat().map((player) => ({...player, roomId})));
     location.href = `/game?gameId=${roomId}`;
   }
 
@@ -48,12 +54,13 @@
       score: 0,
       faultCount: 0,
       playerIndex: 0,
-      playerIds: [],
+      rotationRule: 'slide',
+      players: [],
     };
     teams = [...teams, newTeam];
     players[newTeam.id] = [
       {
-        _id: nanoid(),
+        id: nanoid(),
         displayName: '',
         teamId: newTeam.id,
       },
@@ -61,8 +68,8 @@
   }
 
   function addPlayer(teamId: string) {
-    const newPlayer: Pick<FPlayer, 'displayName' | 'teamId'> & {_id: string} = {
-      _id: nanoid(),
+    const newPlayer: Pick<FPlayer, 'id' | 'displayName' | 'teamId'> = {
+      id: nanoid(),
       displayName: '',
       teamId,
     };
@@ -90,10 +97,10 @@
 
       <h3>Players</h3>
       <ul>
-        {#each players[team.id] as player (player._id)}
+        {#each players[team.id] as player (player.id)}
           <li>
-            <label for="player-name-{player._id}">Name:</label>
-            <input type="text" id="player-name-{player._id}" bind:value="{player.displayName}" />
+            <label for="player-name-{player.id}">Name:</label>
+            <input type="text" id="player-name-{player.id}" bind:value="{player.displayName}" />
           </li>
         {/each}
       </ul>

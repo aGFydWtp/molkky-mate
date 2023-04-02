@@ -4,13 +4,13 @@
   
 	import { goto } from '$app/navigation';
 	import ButtonGrid from '$lib/components/ButtonGrid.svelte';
-	import { addTurnToDb, getGameInfo, getPlayersByTeamId, subscribeToRoomUpdates, updateRoomInDb } from '$lib/firebase/firebaseHelpers';
+	import { addTurnToDb, subscribeToRoomUpdates, updateRoomInDb } from '$lib/firebase/firebaseHelpers';
 
   import { Game, type HitCount } from './game';
   import { Team } from './team';
 
   let hitCount: HitCount | null = null;
-  let game: Game;
+  let game: Game | null = null;
   let unsubscribeFromRoomUpdates: () => void;
   const gameStore = writable<Game | null>(null);
 
@@ -20,35 +20,30 @@
 
     if (typeof gameId  === 'string') {
       unsubscribeFromRoomUpdates = subscribeToRoomUpdates(gameId, (updatedRoom) => {
-        const updatedTeams = game.teams.map((team) => {
-          const updatedTeamData = updatedRoom.teams.find((t) => t.id === team.id);
-          if (!updatedTeamData) {
-            return team;
-          }
-          return new Team(team.id, updatedTeamData.name, team.players, updatedTeamData.score, updatedTeamData.faultCount, team.playerIndex);
-        });
-        game.teams = updatedTeams;
-        game.gameCount = updatedRoom.gameCount;
-        game.turn = updatedRoom.turn;
+        if (game === null) {
+          const teams = updatedRoom.teams.map((team) => new Team(team.id, team.name, team.players, team.score, team.faultCount, team.playerIndex, team.rotationRule));
+          game = new Game(
+            gameId,
+            teams,
+            updatedRoom.gameCount,
+            updatedRoom.turn,
+            updatedRoom.rotationRule
+          );
+        } else {
+          game.gameCount = updatedRoom.gameCount;
+          game.turn = updatedRoom.turn;
+          game.teams.forEach((team) => {
+            const updatedTeamData = updatedRoom.teams.find((t) => t.id === team.id);
+            if (!updatedTeamData) {
+              return;
+            }
+            team.score = updatedTeamData.score;
+            team.faultCount = updatedTeamData.faultCount;
+            team.playerIndex = updatedTeamData.playerIndex;
+          })
+        }
         gameStore.set(game);
       });
-
-      const gameInfo = await getGameInfo(gameId);
-      
-      const teamsPromises = gameInfo.teams.map(async (teamInfo) => {
-        const players = await getPlayersByTeamId(teamInfo.id);
-        return new Team(teamInfo.id, teamInfo.name, players, teamInfo.score, 0, 0);
-      });
-      const teams = await Promise.all(teamsPromises);
-
-      game = new Game(
-        gameId,
-        teams,
-        gameInfo.gameCount,
-        gameInfo.turn,
-        gameInfo.rotationRule
-      );
-      gameStore.set(game);
     } else {
     	goto('/new-game');
       return;
@@ -66,7 +61,7 @@
   }
 
   async function handleSubmit () {
-    if (hitCount === null) {
+    if (hitCount === null || game === null) {
       return;
     }
     const {finished, snapshot} = game.threw(hitCount);
@@ -75,21 +70,22 @@
     if (snapshot !== null) {
       // Turn の追加
       await addTurnToDb(snapshot);
-
-      console.log({updatedRoom: game.serialize()});
       await updateRoomInDb(game.serialize());
     }
     gameStore.set(game);
   }
 
   async function handleNextGame() {
+    if (game === null) {
+      return;
+    }
     game.nextGame();
 
     // Room の更新
     await updateRoomInDb(game.serialize());
     gameStore.set(game);
   }
-
+  
   $: finished = $gameStore?.finished() ?? false;
   $: finishedAllGame = $gameStore?.finishedAllGame() ?? false;
 </script>
@@ -117,7 +113,7 @@
   <button on:click={handleSubmit} disabled={$gameStore?.finished() || hitCount === null}>確定</button>
   <button class:active={hitCount === 0} on:click={() => handleHit(0)}>ミス</button>
   <div>
-    {#if $gameStore}
+    {#if $gameStore !== null}
       <p>残りゲーム数: {$gameStore.gameCount}</p>
       <table>
         <thead>
@@ -129,7 +125,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each $gameStore.teams as team}
+          {#each $gameStore.teams as team, index}
             <tr>
               <td>{team.name}</td>
               <td>{team.score}</td>

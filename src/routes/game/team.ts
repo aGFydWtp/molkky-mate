@@ -67,6 +67,10 @@ export class Team {
 		return this._players;
 	}
 
+	set players(players: Array<Player>) {
+		this._players = players;
+	}
+
 	get score(): number {
 		return this._score;
 	}
@@ -79,8 +83,24 @@ export class Team {
 		return this._faultCount;
 	}
 
+	set faultCount(faultCount: number) {
+		this._faultCount = faultCount;
+	}
+
 	get playerIndex(): number {
 		return this._playerIndex;
+	}
+
+	set playerIndex(playerIndex: number) {
+		this._playerIndex = playerIndex;
+	}
+
+	get rotationRule(): 'slide' | 'none' {
+		return this._rotationRule;
+	}
+
+	set rotateRule(rotationRule: 'slide' | 'none') {
+		this._rotationRule = rotationRule;
 	}
 
 	public currentPlayer() {
