@@ -33,12 +33,13 @@
     const roomId = nanoid();
     const room: FRoom = {
       id: roomId,
-      gameCount,
+      finished: false,
       rotationRule,
       teams: teams.map((team) =>({
         ...team,
         players: players[team.id].map((player) => ({...player, roomId})),
       })),
+      gameHistories: [],
       turn,
     };
 

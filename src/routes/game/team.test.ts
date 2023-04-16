@@ -10,7 +10,15 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon', teamId: '1', roomId: '1' },
 			{ id: '2', displayName: 'mike', teamId: '1', roomId: '1' }
 		];
-		const team = new Team('1', 'teamA', players, 0, 0, 0);
+		const team = new Team({
+			id: '1',
+			name: 'teamA',
+			players,
+			score: 0,
+			faultCount: 0,
+			playerIndex: 0,
+			rotationRule: 'slide'
+		});
 
 		expect(team.score).toBe(0);
 		expect(team.currentPlayer().displayName).toBe('jon');
@@ -21,7 +29,15 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon', teamId: '1', roomId: '1' },
 			{ id: '2', displayName: 'mike', teamId: '1', roomId: '1' }
 		];
-		const team = new Team('1', 'teamA', players, 46, 0, 0, 'slide');
+		const team = new Team({
+			id: '1',
+			name: 'teamA',
+			players,
+			score: 46,
+			faultCount: 0,
+			playerIndex: 0,
+			rotationRule: 'slide'
+		});
 
 		team.threw(4);
 
@@ -39,7 +55,15 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon', teamId: '1', roomId: '1' },
 			{ id: '2', displayName: 'mike', teamId: '1', roomId: '1' }
 		];
-		const team = new Team('1', 'teamA', players, 45, 0, 0);
+		const team = new Team({
+			id: '1',
+			name: 'teamA',
+			players,
+			score: 45,
+			faultCount: 0,
+			playerIndex: 0,
+			rotationRule: 'slide'
+		});
 
 		team.threw(10);
 		expect(team.score).toBe(55);
@@ -50,7 +74,15 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon', teamId: '1', roomId: '1' },
 			{ id: '2', displayName: 'mike', teamId: '1', roomId: '1' }
 		];
-		const team = new Team('1', 'teamA', players, 0, 0, 0);
+		const team = new Team({
+			id: '1',
+			name: 'teamA',
+			players,
+			score: 0,
+			faultCount: 0,
+			playerIndex: 0,
+			rotationRule: 'slide'
+		});
 
 		team.threw(0);
 		team.threw(0);
@@ -65,7 +97,15 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon', teamId: '1', roomId: '1' },
 			{ id: '2', displayName: 'mike', teamId: '1', roomId: '1' }
 		];
-		const team = new Team('1', 'teamA', players, 0, 0, 0, 'none');
+		const team = new Team({
+			id: '1',
+			name: 'teamA',
+			players,
+			score: 0,
+			faultCount: 0,
+			playerIndex: 0,
+			rotationRule: 'none'
+		});
 
 		expect(team.currentPlayer().displayName).toBe('jon');
 
@@ -79,7 +119,15 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon', teamId: '1', roomId: '1' },
 			{ id: '2', displayName: 'mike', teamId: '1', roomId: '1' }
 		];
-		const team = new Team('1', 'teamA', players, 0, 0, 0, 'none');
+		const team = new Team({
+			id: '1',
+			name: 'teamA',
+			players,
+			score: 0,
+			faultCount: 0,
+			playerIndex: 0,
+			rotationRule: 'none'
+		});
 
 		expect(team.currentPlayer().displayName).toBe('jon');
 	});
@@ -89,7 +137,15 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon', teamId: '1', roomId: '1' },
 			{ id: '2', displayName: 'mike', teamId: '1', roomId: '1' }
 		];
-		const team = new Team('1', 'teamA', players, 0, 0, 0, 'none');
+		const team = new Team({
+			id: '1',
+			name: 'teamA',
+			players,
+			score: 0,
+			faultCount: 0,
+			playerIndex: 0,
+			rotationRule: 'none'
+		});
 
 		team.threw(10);
 
@@ -101,7 +157,15 @@ describe('team test', () => {
 			{ id: '1', displayName: 'jon', teamId: '1', roomId: '1' },
 			{ id: '2', displayName: 'mike', teamId: '1', roomId: '1' }
 		];
-		const team = new Team('1', 'teamA', players, 0, 0, 0, 'none');
+		const team = new Team({
+			id: '1',
+			name: 'teamA',
+			players,
+			score: 0,
+			faultCount: 0,
+			playerIndex: 0,
+			rotationRule: 'none'
+		});
 
 		team.threw(10);
 		team.reset();

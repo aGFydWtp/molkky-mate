@@ -7,7 +7,6 @@
 	import { addTurnToDb, subscribeToRoomUpdates, updateRoomInDb } from '$lib/firebase/firebaseHelpers';
 
   import { Game, type HitCount } from './game';
-  import { Team } from './team';
 
   let hitCount: HitCount | null = null;
   let game: Game | null = null;
@@ -21,16 +20,11 @@
     if (typeof gameId  === 'string') {
       unsubscribeFromRoomUpdates = subscribeToRoomUpdates(gameId, (updatedRoom) => {
         if (game === null) {
-          const teams = updatedRoom.teams.map((team) => new Team(team.id, team.name, team.players, team.score, team.faultCount, team.playerIndex, team.rotationRule));
-          game = new Game(
-            gameId,
-            teams,
-            updatedRoom.gameCount,
-            updatedRoom.turn,
-            updatedRoom.rotationRule
-          );
+          game = new Game({
+            ...updatedRoom,
+            id: gameId,
+          });
         } else {
-          game.gameCount = updatedRoom.gameCount;
           game.turn = updatedRoom.turn;
           game.teams.forEach((team) => {
             const updatedTeamData = updatedRoom.teams.find((t) => t.id === team.id);
@@ -64,14 +58,20 @@
     if (hitCount === null || game === null) {
       return;
     }
-    const {finished, snapshot} = game.threw(hitCount);
-    hitCount = null;
+    const {finished, gameCount, snapshot} = game.threw(hitCount);
 
     if (snapshot !== null) {
       // Turn の追加
-      await addTurnToDb(snapshot);
-      await updateRoomInDb(game.serialize());
+      await addTurnToDb({...snapshot, gameCount, hitCount});
+      const serializedGame = game.serialize();
+      await updateRoomInDb({
+        ...serializedGame,
+        gameHistories: finished ? [
+          ...serializedGame.gameHistories,
+          {gameCount: game.getGameCount(), teams: serializedGame.teams, wonTeamId: snapshot.teamId}
+        ] : serializedGame.gameHistories});
     }
+    hitCount = null;
     gameStore.set(game);
   }
 
@@ -86,7 +86,7 @@
     gameStore.set(game);
   }
   
-  $: finished = $gameStore?.finished() ?? false;
+  $: finished = $gameStore?.finishedCurrentGame() ?? false;
   $: finishedAllGame = $gameStore?.finishedAllGame() ?? false;
 </script>
 
@@ -110,11 +110,10 @@
     </div>
     <button on:click={handleNextGame} disabled={finishedAllGame || !finished}>次のゲームへ</button>
   </div>
-  <button on:click={handleSubmit} disabled={$gameStore?.finished() || hitCount === null}>確定</button>
+  <button on:click={handleSubmit} disabled={$gameStore?.finishedCurrentGame() || hitCount === null}>確定</button>
   <button class:active={hitCount === 0} on:click={() => handleHit(0)}>ミス</button>
   <div>
     {#if $gameStore !== null}
-      <p>残りゲーム数: {$gameStore.gameCount}</p>
       <table>
         <thead>
           <tr>

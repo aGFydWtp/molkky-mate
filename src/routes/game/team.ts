@@ -1,3 +1,4 @@
+import type { FTeam } from '$lib/firebase/types';
 import type { HitCount } from './game';
 
 export interface Player {
@@ -36,23 +37,17 @@ export class Team {
 	 * @memberof Team
 	 */
 	private _rotationRule: 'slide' | 'none';
+	private rawData: FTeam;
 
-	constructor(
-		id: string,
-		name: string,
-		players: Array<Player>,
-		score: number,
-		faultCount: number,
-		playerIndex: number,
-		rotationRule: 'slide' | 'none' | undefined = 'slide'
-	) {
-		this._id = id;
-		this._name = name;
-		this._players = players;
-		this._score = score;
-		this._faultCount = faultCount;
-		this._playerIndex = playerIndex;
-		this._rotationRule = rotationRule;
+	constructor(team: FTeam) {
+		this._id = team.id;
+		this._name = team.name;
+		this._players = team.players;
+		this._score = team.score;
+		this._faultCount = team.faultCount;
+		this._playerIndex = team.playerIndex;
+		this._rotationRule = team.rotationRule;
+		this.rawData = team;
 	}
 
 	get id(): string {
@@ -129,5 +124,17 @@ export class Team {
 		if (this._rotationRule === 'slide' && this.players.length > 1) {
 			this._players = [...this.players.slice(-1), ...this.players.slice(0, -1)];
 		}
+	}
+
+	public serialize(): FTeam {
+		return {
+			id: this._id,
+			name: this._name,
+			score: this._score,
+			faultCount: this._faultCount,
+			playerIndex: this._playerIndex,
+			rotationRule: this._rotationRule,
+			players: this._players
+		};
 	}
 }

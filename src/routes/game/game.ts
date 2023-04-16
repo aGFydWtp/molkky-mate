@@ -1,4 +1,6 @@
-import type { Team } from './team';
+import { Team } from './team';
+
+import type { FRoom } from '$lib/firebase/types';
 
 export const MAX_SCORE = 50;
 export type HitCount = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
@@ -6,14 +8,6 @@ export type HitCount = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 export class Game {
 	private _id: string;
 	private _teams: Array<Team>;
-	/**
-	 * ゲームの残り回数
-	 *
-	 * @private
-	 * @type {number}
-	 * @memberof Game
-	 */
-	private _gameCount: number;
 	/**
 	 * チームの順番を変えるルール
 	 *
@@ -30,25 +24,19 @@ export class Game {
 	 * @memberof Game
 	 */
 	private _turn: number;
+	private _finished: boolean;
+	private rawData: FRoom | undefined;
 
-	constructor(
-		id: string,
-		teams: Array<Team>,
-		gameCount: number,
-		turn: number,
-		rotationRule: 'slide' | 'none' = 'slide'
-	) {
-		if (gameCount <= 0) {
-			throw new Error('gameCount は1以上の値を設定してください');
-		}
-		if (teams.length < 1) {
+	constructor(room: FRoom) {
+		if (room.teams.length < 1) {
 			throw new Error('1チーム以上いる必要があります。');
 		}
-		this._id = id;
-		this._teams = teams;
-		this._gameCount = gameCount;
-		this._turn = turn;
-		this._rotationRule = rotationRule;
+		this._id = room.id;
+		this._teams = room.teams.map((team) => new Team(team));
+		this._turn = room.turn;
+		this._rotationRule = room.rotationRule;
+		this._finished = room.finished;
+		this.rawData = room;
 	}
 
 	get id(): string {
@@ -63,13 +51,13 @@ export class Game {
 		return this._teams;
 	}
 
-	set gameCount(gameCount: number) {
-		this._gameCount = gameCount;
-	}
+	// set gameCount(gameCount: number) {
+	// 	this._gameCount = gameCount;
+	// }
 
-	get gameCount(): number {
-		return this._gameCount;
-	}
+	// get gameCount(): number {
+	// 	return this._gameCount;
+	// }
 
 	set turn(turn: number) {
 		this._turn = turn;
@@ -91,26 +79,19 @@ export class Game {
 		return this._teams.find((team) => team.id === id);
 	}
 
-	public serialize() {
+	public getGameCount(): number {
+		return this.rawData?.gameHistories.length ?? 0;
+	}
+
+	public serialize(): FRoom {
+		const teams = this._teams.map((team) => team.serialize());
 		return {
 			id: this._id,
-			gameCount: this._gameCount,
-			rotationRule: this._rotationRule,
+			teams,
 			turn: this._turn,
-			teams: this._teams.map((team) => ({
-				id: team.id,
-				name: team.name,
-				score: team.score,
-				faultCount: team.faultCount,
-				playerIndex: team.playerIndex,
-				rotationRule: team.rotationRule,
-				players: team.players.map((player) => ({
-					id: player.id,
-					displayName: player.displayName,
-					teamId: player.teamId,
-					roomId: player.roomId
-				}))
-			}))
+			rotationRule: this._rotationRule,
+			finished: this._finished,
+			gameHistories: this.rawData?.gameHistories ?? []
 		};
 	}
 
@@ -144,8 +125,8 @@ export class Game {
 	 */
 	public threw(hitCount: HitCount): {
 		finished: boolean;
+		gameCount: number;
 		snapshot: {
-			gameCount: number;
 			score: number;
 			faultCount: number;
 			currentTurn: number;
@@ -154,10 +135,12 @@ export class Game {
 			teamId: string;
 		} | null;
 	} {
-		if (this.finished()) return { finished: true, snapshot: null };
+		if (this._finished) {
+			return { finished: true, gameCount: this.getGameCount(), snapshot: null };
+		}
 
+		const gameCount = this.getGameCount();
 		const snapshot = {
-			gameCount: this._gameCount,
 			currentTurn: this._turn,
 			playerId: this.teamOfCurrentTurn().currentPlayer().id,
 			roomId: this._id,
@@ -172,26 +155,26 @@ export class Game {
 			targetTeam.score = 25;
 		}
 
+		const finished = this.finishedCurrentGame();
 		if (targetTeam.score <= MAX_SCORE) {
 			this._turn = this._turn + 1;
 			return {
-				finished: true,
+				finished,
+				gameCount,
 				snapshot: { ...snapshot, score: targetTeam.score, faultCount: targetTeam.faultCount }
 			};
 		}
-		return { finished: true, snapshot: null };
+		return { finished, gameCount: this.getGameCount(), snapshot: null };
 	}
 
 	/**
-	 * gameCount をデクリメントして次のゲームを開始する
 	 * 全てのゲームが終了している場合は false を返却する
 	 *
 	 * @memberof Game
 	 */
 	public nextGame(): boolean {
-		if (this._gameCount <= 1) return false;
+		if (this._finished) return false;
 
-		this._gameCount--;
 		this._turn = 0;
 		this._teams.forEach((_, index) => this._teams[index].reset());
 		if (this._rotationRule === 'slide' && this._teams.length > 1) {
@@ -200,14 +183,14 @@ export class Game {
 		return true;
 	}
 
-	public finished() {
-		return (
+	public finishedCurrentGame() {
+		this._finished =
 			this._teams.some((team) => team.score >= MAX_SCORE) ||
-			this._teams.some((team) => team.faultCount >= 3)
-		);
+			this._teams.some((team) => team.faultCount >= 3);
+		return this._finished;
 	}
 
 	public finishedAllGame() {
-		return this._gameCount <= 1 && this.finished();
+		return this._finished && this.finishedCurrentGame();
 	}
 }

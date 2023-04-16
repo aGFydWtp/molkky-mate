@@ -8,18 +8,26 @@ export interface FTeam {
 	players: Array<FPlayer>;
 }
 
+export interface FGameHistory {
+	gameCount: number;
+	teams: Array<FTeam>;
+	wonTeamId: string;
+}
+
 export interface FRoom {
 	id: string;
-	gameCount: number;
+	finished: boolean;
 	turn: number;
 	rotationRule: 'slide' | 'none';
 	teams: Array<FTeam>;
+	gameHistories: Array<FGameHistory>;
 }
 
 export interface FTurn {
 	id: string;
 	gameCount: number;
 	score: number;
+	hitCount: number;
 	faultCount: number;
 	currentTurn: number;
 	playerId: string;
